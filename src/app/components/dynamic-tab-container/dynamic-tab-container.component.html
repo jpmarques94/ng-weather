@@ -1,0 +1,26 @@
+<ng-container *ngIf="tabs.length > 0">
+	<div class="tab-header">
+		<ng-container *ngFor="let tab of tabs; let i = index">
+			<div
+				class="tab-title"
+				[ngClass]="{ 'is-active': i === currentTabIndex }"
+				(click)="openTab(i)"
+			>
+				{{ tab.headerTitle }}
+				<button (click)="closeTab(tab, i)">X</button>
+			</div>
+		</ng-container>
+	</div>
+	<div class="tab-content">
+		<ng-container *ngFor="let tab of tabs; let i = index">
+			<ng-container *ngIf="i === currentTabIndex">
+				<ng-container
+					*ngTemplateOutlet="
+						tab.bodyTemplate;
+						context: { $implicit: tab }
+					"
+				></ng-container>
+			</ng-container>
+		</ng-container>
+	</div>
+</ng-container>

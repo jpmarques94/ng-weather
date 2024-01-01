@@ -51,7 +51,9 @@ export class LocationService {
 	private reducer(state: string[], action: Action<string>): string[] {
 		switch (action.type) {
 			case ActionType.Add:
-				return [...state, action.payload];
+				return !state.includes(action.payload)
+					? [...state, action.payload]
+					: state; //* avoid duplicated zipcodes
 			case ActionType.Remove:
 				return state.filter((location) => location !== action.payload);
 			default:
