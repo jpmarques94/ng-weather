@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BaseStatefulService } from '@core/services/stateful.service';
 import { Action, ActionType } from '@utils/state-utils';
 
-export const LOCATIONS: string = 'locations';
+const LOCATIONS: string = 'locations';
 
 @Injectable({ providedIn: 'root' })
 export class LocationService extends BaseStatefulService<string[]> {

@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { isValidUSZipCode } from '@utils/string-utils';
 import { LocationService } from '../../services/location.service';
 
 @Component({
@@ -11,6 +12,8 @@ export class ZipcodeEntryComponent {
 	constructor() {}
 
 	public addLocation(zipcode: string): void {
-		this.locationService.addLocation(zipcode);
+		if (isValidUSZipCode(zipcode)) {
+			this.locationService.addLocation(zipcode);
+		}
 	}
 }
