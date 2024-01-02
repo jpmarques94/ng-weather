@@ -7,20 +7,24 @@ const LOCATIONS: string = 'locations';
 @Injectable({ providedIn: 'root' })
 export class LocationService extends BaseStatefulService<
 	string[],
-	Action<string>
+	Action<string | number>
 > {
 	constructor() {
 		super();
 	}
 
-	protected reducer(state: string[], action: Action<string>): string[] {
+	protected reducer(
+		state: string[],
+		action: Action<string | number>
+	): string[] {
 		switch (action.type) {
 			case ActionType.Add:
-				return !state.includes(action.payload)
-					? [...state, action.payload]
-					: state;
+				return [...state, action.payload as string];
 			case ActionType.Remove:
-				return state.filter((location) => location !== action.payload);
+				return [
+					...state.slice(0, action.payload as number),
+					...state.slice((action.payload as number) + 1),
+				];
 			default:
 				return state;
 		}
@@ -39,8 +43,8 @@ export class LocationService extends BaseStatefulService<
 		this.dispatch({ type: ActionType.Add, payload: zipcode });
 	}
 
-	public removeLocation(zipcode: string): void {
-		this.dispatch({ type: ActionType.Remove, payload: zipcode });
+	public removeLocation(index: number): void {
+		this.dispatch({ type: ActionType.Remove, payload: index });
 	}
 
 	private updateStorageFn = (locations) =>

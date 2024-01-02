@@ -9,8 +9,6 @@ import { LocationService } from '../../services/location.service';
 export class ZipcodeEntryComponent {
 	private locationService = inject(LocationService);
 
-	constructor() {}
-
 	public addLocation(zipcode: string): void {
 		if (isValidUSZipCode(zipcode)) {
 			this.locationService.addLocation(zipcode);

@@ -1,14 +1,14 @@
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { distinctUntilChanged, scan, shareReplay, tap } from 'rxjs/operators';
 
 export abstract class BaseStatefulService<TValue, TAction> {
-	private readonly initialState = this.getInitialState();
 	private actions = new Subject<TAction>();
-	private state = new BehaviorSubject<TValue>(this.initialState);
+	private state = new BehaviorSubject<TValue>(this.getInitialState());
 
 	public onAction$ = this.actions.asObservable();
 
-	public state$: Observable<TValue> = this.state.asObservable().pipe(
+	public state$ = this.state.asObservable().pipe(
 		distinctUntilChanged(),
 		shareReplay(1),
 		tap((s) => this.onStateChange(s))
@@ -17,9 +17,10 @@ export abstract class BaseStatefulService<TValue, TAction> {
 	constructor() {
 		this.actions
 			.pipe(
+				takeUntilDestroyed(),
 				scan(
 					(state, action) => this.reducer(state, action),
-					this.initialState
+					this.getInitialState()
 				)
 			)
 			.subscribe((newState) => this.state.next(newState));
