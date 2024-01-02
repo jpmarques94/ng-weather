@@ -5,7 +5,10 @@ import { Action, ActionType } from '@utils/state-utils';
 const LOCATIONS: string = 'locations';
 
 @Injectable({ providedIn: 'root' })
-export class LocationService extends BaseStatefulService<string[]> {
+export class LocationService extends BaseStatefulService<
+	string[],
+	Action<string>
+> {
 	constructor() {
 		super();
 	}

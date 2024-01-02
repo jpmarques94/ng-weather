@@ -1,11 +1,14 @@
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { distinctUntilChanged, scan, shareReplay, tap } from 'rxjs/operators';
 
-export abstract class BaseStatefulService<T> {
-	private actions = new Subject<any>();
-	private state = new BehaviorSubject<T>(this.getInitialState());
+export abstract class BaseStatefulService<TValue, TAction> {
+	private readonly initialState = this.getInitialState();
+	private actions = new Subject<TAction>();
+	private state = new BehaviorSubject<TValue>(this.initialState);
 
-	public state$: Observable<T> = this.state.asObservable().pipe(
+	public onAction$ = this.actions.asObservable();
+
+	public state$: Observable<TValue> = this.state.asObservable().pipe(
 		distinctUntilChanged(),
 		shareReplay(1),
 		tap((s) => this.onStateChange(s))
@@ -16,19 +19,19 @@ export abstract class BaseStatefulService<T> {
 			.pipe(
 				scan(
 					(state, action) => this.reducer(state, action),
-					this.getInitialState()
+					this.initialState
 				)
 			)
 			.subscribe((newState) => this.state.next(newState));
 	}
 
-	public dispatch(action: any): void {
+	public dispatch(action: TAction): void {
 		this.actions.next(action);
 	}
 
-	protected abstract reducer(state: T, action: any): T;
+	protected abstract reducer(state: TValue, action: TAction): TValue;
 
-	protected abstract onStateChange(state: T): void;
+	protected abstract onStateChange(state: TValue): void;
 
-	protected abstract getInitialState(): T;
+	protected abstract getInitialState(): TValue;
 }

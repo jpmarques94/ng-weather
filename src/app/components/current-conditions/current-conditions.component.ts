@@ -1,8 +1,16 @@
-import { Component, DestroyRef, inject, OnInit, Signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+	Component,
+	DestroyRef,
+	inject,
+	Injector,
+	OnInit,
+	Signal,
+} from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { findDifferentElements } from '@utils/array-utils';
-import { pairwise, startWith, tap } from 'rxjs/operators';
+import { ActionType } from '@utils/state-utils';
+import { combineLatest, forkJoin, of } from 'rxjs';
+import { filter, first, switchMap } from 'rxjs/operators';
 import { ConditionsAndZip } from '../../models/conditions-and-zip.type';
 import { LocationService } from '../../services/location.service';
 import { WeatherService } from '../../services/weather.service';
@@ -16,57 +24,72 @@ export class CurrentConditionsComponent implements OnInit {
 	private weatherService = inject(WeatherService);
 	private router = inject(Router);
 	private destroyRef = inject(DestroyRef);
+	private injector = inject(Injector);
 	protected locationService = inject(LocationService);
 	protected currentConditionsByZip: Signal<ConditionsAndZip[]> =
 		this.weatherService.getCurrentConditions();
 
+	private readonly currentConditionsByZip$ = toObservable(
+		this.currentConditionsByZip,
+		{
+			injector: this.injector,
+		}
+	);
+
 	public ngOnInit(): void {
-		this.locationService.state$
-			.pipe(
-				startWith([]),
-				pairwise(),
-				takeUntilDestroyed(this.destroyRef),
-				tap(([previousLocations, currentLocations]) =>
-					this.updateConditionsByZip(
-						previousLocations,
-						currentLocations
-					)
-				)
-			)
-			.subscribe();
+		// Set initial conditions based on the current locations state
+		this.setInitialConditions();
+
+		// Subscribe to updates in conditions
+		this.listenForConditionsUpdate();
 	}
 
 	public showForecast(zipcode: string): void {
 		this.router.navigate(['/forecast', zipcode]);
 	}
 
-	/**
-	 ** Updates the weather conditions based on changes in locations service state.
-	 ** Determines whether a location is added or removed and updates
-	 ** the weather conditions accordingly.
-	 *
-	 * @param previousLocations - The array of previous locations.
-	 * @param currentLocations - The array of current locations.
-	 */
-	private updateConditionsByZip(
-		previousLocations: string[],
-		currentLocations: string[]
-	) {
-		//* Check if a location is being added or removed
-		const isAddingLocation =
-			currentLocations.length > previousLocations.length;
+	// Fetch and add current conditions for each initial zip code
+	private setInitialConditions(): void {
+		combineLatest([
+			this.locationService.state$,
+			this.currentConditionsByZip$,
+		])
+			.pipe(
+				first(),
+				filter(
+					([initialState, currentConditions]) =>
+						currentConditions.length !== initialState.length
+				),
+				switchMap(([initialState]) =>
+					forkJoin(
+						initialState.map((zipcode) =>
+							of(
+								this.weatherService.addCurrentConditions(
+									zipcode
+								)
+							)
+						)
+					)
+				)
+			)
+			.subscribe();
+	}
 
-		//* Find the zipcodes that are different between the two arrays
-		const diffZipcodes = findDifferentElements(
-			previousLocations,
-			currentLocations
-		);
-
-		//* Update weather conditions based on the operation (add or remove)
-		diffZipcodes.forEach((zipcode) => {
-			isAddingLocation
-				? this.weatherService.addCurrentConditions(zipcode)
-				: this.weatherService.removeCurrentConditions(zipcode);
-		});
+	// Listen for changes in locations and update weather service accordingly
+	private listenForConditionsUpdate(): void {
+		this.locationService.onAction$
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe(({ type, payload }) => {
+				switch (type) {
+					case ActionType.Add: {
+						this.weatherService.addCurrentConditions(payload);
+						break;
+					}
+					case ActionType.Remove: {
+						this.weatherService.removeCurrentConditions(payload);
+						break;
+					}
+				}
+			});
 	}
 }
