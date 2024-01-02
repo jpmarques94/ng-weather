@@ -13,7 +13,8 @@
 		"useDefineForClassFields": false,
 		"paths": {
 			"@utils/*": ["app/utils/*"],
-			"@models/*": ["app/models/*"]
+			"@models/*": ["app/models/*"],
+			"@core/services/*": ["app/core/services/*"]
 		}
 	}
 }

@@ -1,63 +1,45 @@
 import { Injectable } from '@angular/core';
+import { BaseStatefulService } from '@core/services/stateful.service';
 import { Action, ActionType } from '@utils/state-utils';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { distinctUntilChanged, scan, shareReplay } from 'rxjs/operators';
 
-/**
- * * Service for managing user locations
- */
+export const LOCATIONS: string = 'locations';
+
 @Injectable({ providedIn: 'root' })
-export class LocationService {
-	private initialState = [];
-	private actions = new Subject<Action<string>>();
-	private state = new BehaviorSubject<string[]>(this.initialState);
-
-	public locations$: Observable<string[]> = this.state
-		.asObservable()
-		.pipe(distinctUntilChanged(), shareReplay(1));
-
+export class LocationService extends BaseStatefulService<string[]> {
 	constructor() {
-		this.actions
-			.pipe(
-				scan(
-					(state, action) => this.reducer(state, action),
-					this.initialState
-				)
-			)
-			.subscribe((newState) => this.state.next(newState));
+		super();
 	}
 
-	/**
-	 ** Dispatch add action to update state with the new zipcode
-	 * @param zipcode The zipcode to add.
-	 */
-	public addLocation(zipcode: string): void {
-		this.actions.next({ type: ActionType.Add, payload: zipcode });
-	}
-
-	/**
-	 ** Dispatch remove action for a given zipcode
-	 * @param zipcode The zipcode to remove.
-	 */
-	public removeLocation(zipcode: string): void {
-		this.actions.next({ type: ActionType.Remove, payload: zipcode });
-	}
-
-	/**
-	 ** Update state given a specific action
-	 * @param state
-	 * @param action
-	 */
-	private reducer(state: string[], action: Action<string>): string[] {
+	protected reducer(state: string[], action: Action<string>): string[] {
 		switch (action.type) {
 			case ActionType.Add:
 				return !state.includes(action.payload)
 					? [...state, action.payload]
-					: state; //* avoid duplicated zipcodes
+					: state;
 			case ActionType.Remove:
 				return state.filter((location) => location !== action.payload);
 			default:
 				return state;
 		}
 	}
+
+	protected onStateChange(state: string[]): void {
+		this.updateStorageFn(state);
+	}
+
+	protected getInitialState(): string[] {
+		return JSON.parse(localStorage.getItem(LOCATIONS)) ?? [];
+	}
+
+	// Additional methods specific to LocationService
+	public addLocation(zipcode: string): void {
+		this.dispatch({ type: ActionType.Add, payload: zipcode });
+	}
+
+	public removeLocation(zipcode: string): void {
+		this.dispatch({ type: ActionType.Remove, payload: zipcode });
+	}
+
+	private updateStorageFn = (locations) =>
+		localStorage.setItem(LOCATIONS, JSON.stringify(locations));
 }
