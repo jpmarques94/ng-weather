@@ -12,7 +12,7 @@ import {
 	standalone: true,
 })
 export class DynamicTabComponent {
-	@Input() public headerTitle = '';
+	@Input() public title = '';
 	@Output() public onClose: EventEmitter<void> = new EventEmitter<void>();
 	@ContentChild(TemplateRef) public bodyTemplate: TemplateRef<any>;
 }

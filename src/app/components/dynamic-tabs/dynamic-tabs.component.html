@@ -6,7 +6,7 @@
 				[ngClass]="{ 'is-active': i === currentTabIndex }"
 				(click)="openTab(i)"
 			>
-				{{ tab.headerTitle }}
+				{{ tab.title }}
 				<button (click)="closeTab(tab, i)">X</button>
 			</div>
 		</ng-container>

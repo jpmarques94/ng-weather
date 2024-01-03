@@ -11,11 +11,11 @@ import { filter, map, tap } from 'rxjs/operators';
 import { DynamicTabComponent } from './dynamic-tab.directive';
 
 @Component({
-	selector: 'dynamic-tab-container',
+	selector: 'dynamic-tabs',
 	standalone: true,
 	imports: [BrowserModule],
-	templateUrl: './dynamic-tab-container.component.html',
-	styleUrl: './dynamic-tab-container.component.css',
+	templateUrl: './dynamic-tabs.component.html',
+	styleUrl: './dynamic-tabs.component.css',
 })
 export class DynamicTabContainerComponent
 	implements AfterContentInit, OnDestroy

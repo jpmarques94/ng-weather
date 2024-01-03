@@ -1,16 +1,14 @@
-<ng-container *ngIf="vm$ | async as vm">
-	<dynamic-tab-container>
-		<ng-container *ngFor="let location of vm; let i = index">
-			<dynamic-tab
-				*ngIf="location.data"
-				headerTitle="{{ location.data.name }} ({{ location.zip }})"
-				(onClose)="locationService.removeLocation(i)"
-			>
-				<ng-template let-tab="location">
-					<div
-						class="flex clickable"
-						(click)="showForecast(location.zip)"
-					>
+<dynamic-tabs>
+	<ng-container
+		*ngFor="let location of locationsData$ | async; let i = index"
+	>
+		<dynamic-tab
+			[title]="location.title"
+			(onClose)="locationService.removeLocation(i)"
+		>
+			<ng-template let-tab="location">
+				<div class="flex">
+					<ng-container *ngIf="location.data; else errorTemplate">
 						<div>
 							<h4>
 								Current conditions:
@@ -32,7 +30,11 @@
 								}}
 							</p>
 							<p>
-								<a [routerLink]="['/forecast', location.zip]"
+								<a
+									[routerLink]="[
+										'/forecast',
+										location.zipcode
+									]"
 									>Show 5-day forecast for
 									{{ location.data.name }}</a
 								>
@@ -47,9 +49,12 @@
 								"
 							/>
 						</div>
-					</div>
-				</ng-template>
-			</dynamic-tab>
-		</ng-container>
-	</dynamic-tab-container>
-</ng-container>
+					</ng-container>
+					<ng-template #errorTemplate>
+						<h4>{{ location.errorMessage }}</h4>
+					</ng-template>
+				</div>
+			</ng-template>
+		</dynamic-tab>
+	</ng-container>
+</dynamic-tabs>

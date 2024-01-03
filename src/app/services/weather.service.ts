@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { CurrentConditions } from '@models/current-conditions.type';
+import { Forecast } from '@models/forecast.type';
 import { Observable } from 'rxjs';
-import { CurrentConditions } from '../components/current-conditions/current-conditions.type';
-import { Forecast } from '../components/forecasts-list/forecast.type';
 
 @Injectable({ providedIn: 'root' })
 export class WeatherService {

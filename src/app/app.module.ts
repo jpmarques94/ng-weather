@@ -7,14 +7,14 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { routing } from './app.routing';
-import { CurrentConditionsComponent } from './components/current-conditions/current-conditions.component';
-import { DynamicTabContainerComponent } from './components/dynamic-tab-container/dynamic-tab-container.component';
-import { DynamicTabComponent } from './components/dynamic-tab-container/dynamic-tab.directive';
-import { ForecastsListComponent } from './components/forecasts-list/forecasts-list.component';
-import { MainPageComponent } from './components/main-page/main-page.component';
-import { ZipcodeEntryComponent } from './components/zipcode-entry/zipcode-entry.component';
+import { DynamicTabComponent } from './components/dynamic-tabs/dynamic-tab.directive';
+import { DynamicTabContainerComponent } from './components/dynamic-tabs/dynamic-tabs.component';
 import { CachingInterceptor } from './core/interceptors/caching.interceptor';
 import { CACHE_DURATION } from './core/tokens/app.tokens';
+import { CurrentConditionsComponent } from './features/current-conditions/current-conditions.component';
+import { ForecastsListComponent } from './features/forecasts-list/forecasts-list.component';
+import { MainPageComponent } from './features/main-page/main-page.component';
+import { ZipcodeEntryComponent } from './features/zipcode-entry/zipcode-entry.component';
 
 @NgModule({
 	declarations: [
