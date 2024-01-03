@@ -5,5 +5,5 @@
 
 export const environment = {
 	production: false,
-	cacheDuration: 10000,
+	cacheDuration: 2 * 60 * 60 * 1000, // 2 hours in milliseconds
 };

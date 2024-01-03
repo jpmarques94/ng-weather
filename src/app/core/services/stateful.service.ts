@@ -6,8 +6,6 @@ export abstract class BaseStatefulService<TValue, TAction> {
 	private actions = new Subject<TAction>();
 	private state = new BehaviorSubject<TValue>(this.getInitialState());
 
-	public onAction$ = this.actions.asObservable();
-
 	public state$ = this.state.asObservable().pipe(
 		distinctUntilChanged(),
 		shareReplay(1),
