@@ -14,5 +14,5 @@ import {
 export class DynamicTabComponent {
 	@Input() public title = '';
 	@Output() public onClose: EventEmitter<void> = new EventEmitter<void>();
-	@ContentChild(TemplateRef) public bodyTemplate: TemplateRef<any>;
+	@ContentChild(TemplateRef) public template: TemplateRef<any>;
 }

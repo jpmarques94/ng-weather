@@ -8,7 +8,6 @@
 	cursor: pointer;
 	background-color: #337ab7;
 	color: white;
-	padding: 0.3rem 0.5rem;
 	border: 1px solid black;
 }
 
@@ -16,11 +15,19 @@
 	color: white;
 	background-color: transparent;
 	border: none;
-	margin-left: 1rem;
 }
 
 .tab-title.is-active {
 	background-color: black;
+}
+
+.tab-title .tab-title-name {
+	padding: 0.3rem 1.5rem 0.3rem 0.5rem;
+}
+
+.tab-title-container {
+	display: flex;
+	align-items: center;
 }
 
 .tab-content {

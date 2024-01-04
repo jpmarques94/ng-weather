@@ -4,10 +4,13 @@
 			<div
 				class="tab-title"
 				[ngClass]="{ 'is-active': i === currentIndex }"
-				(click)="currentIndex = i"
 			>
-				{{ tab.title }}
-				<button (click)="tab.onClose.emit()">X</button>
+				<div class="tab-title-container">
+					<div class="tab-title-name" (click)="currentIndex = i">
+						{{ tab.title }}
+					</div>
+					<button (click)="close(tab, i)">X</button>
+				</div>
 			</div>
 		</ng-container>
 	</div>
@@ -16,7 +19,7 @@
 			<ng-container *ngIf="i === currentIndex">
 				<ng-container
 					*ngTemplateOutlet="
-						tab.bodyTemplate;
+						tab.template;
 						context: { $implicit: tab }
 					"
 				></ng-container>

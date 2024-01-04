@@ -1,14 +1,5 @@
-import {
-	AfterContentInit,
-	Component,
-	ContentChildren,
-	DestroyRef,
-	QueryList,
-	inject,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, ContentChildren, QueryList } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { map } from 'rxjs/operators';
 import { DynamicTabComponent } from './dynamic-tab.directive';
 
 @Component({
@@ -18,25 +9,27 @@ import { DynamicTabComponent } from './dynamic-tab.directive';
 	templateUrl: './dynamic-tabs.component.html',
 	styleUrl: './dynamic-tabs.component.css',
 })
-export class DynamicTabContainerComponent implements AfterContentInit {
+export class DynamicTabContainerComponent {
 	@ContentChildren(DynamicTabComponent)
 	public tabs!: QueryList<DynamicTabComponent>;
-	public currentIndex = 0;
-	private destroyRef = inject(DestroyRef);
 
-	public ngAfterContentInit(): void {
-		// Listen for changes in the list of tabs and update the current tab index accordingly.
-		// This ensures the active tab's style is applied and the correct template is displayed.
-		this.tabs.changes
-			.pipe(
-				takeUntilDestroyed(this.destroyRef),
-				map(
-					(tabs) =>
-						tabs.length === 0
-							? 0
-							: Math.min(this.currentIndex, tabs.length - 1) // Ensure that removing tabs updates to the index of the last available tab.
-				)
-			)
-			.subscribe((index) => (this.currentIndex = index));
+	public currentIndex = 0;
+
+	public close(tab: DynamicTabComponent, index: number) {
+		this.updateIndexOnRemove(index);
+		tab.onClose.emit();
+	}
+
+	/**
+	 * Adjusts currentIndex after removing a tab to ensure it remains within valid bounds.
+	 * If the removed tab is before or at the active one, decrements currentIndex.
+	 * If there are no tabs remaining, sets currentIndex to 0.
+	 */
+	private updateIndexOnRemove(index: number): void {
+		if (this.tabs.length > 0 && index <= this.currentIndex) {
+			this.currentIndex = Math.max(0, this.currentIndex - 1);
+		} else if (this.tabs.length === 0) {
+			this.currentIndex = 0;
+		}
 	}
 }
