@@ -2,12 +2,13 @@ import {
 	AfterContentInit,
 	Component,
 	ContentChildren,
-	OnDestroy,
+	DestroyRef,
 	QueryList,
+	inject,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BrowserModule } from '@angular/platform-browser';
-import { Subscription } from 'rxjs';
-import { filter, map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { DynamicTabComponent } from './dynamic-tab.directive';
 
 @Component({
@@ -17,41 +18,25 @@ import { DynamicTabComponent } from './dynamic-tab.directive';
 	templateUrl: './dynamic-tabs.component.html',
 	styleUrl: './dynamic-tabs.component.css',
 })
-export class DynamicTabContainerComponent
-	implements AfterContentInit, OnDestroy
-{
-	@ContentChildren(DynamicTabComponent) tabs!: QueryList<DynamicTabComponent>;
+export class DynamicTabContainerComponent implements AfterContentInit {
+	@ContentChildren(DynamicTabComponent)
+	public tabs!: QueryList<DynamicTabComponent>;
+	public currentIndex = 0;
+	private destroyRef = inject(DestroyRef);
 
-	private subscription: Subscription;
-
-	public currentTabIndex = 0;
-
-	ngAfterContentInit(): void {
-		this.subscription = this.tabs.changes
+	public ngAfterContentInit(): void {
+		// Listen for changes in the list of tabs and update the current tab index accordingly.
+		// This ensures the active tab's style is applied and the correct template is displayed.
+		this.tabs.changes
 			.pipe(
-				map((tabs) => tabs.toArray()),
-				tap((currentTabs) => {
-					if (currentTabs.length === 0) {
-						this.currentTabIndex = 0; //* reset index when there are no tabs
-					}
-				}),
-				filter((currentTabs) => currentTabs.length > 0),
-				map((currentTabs) =>
-					Math.min(this.currentTabIndex, currentTabs.length - 1)
+				takeUntilDestroyed(this.destroyRef),
+				map(
+					(tabs) =>
+						tabs.length === 0
+							? 0
+							: Math.min(this.currentIndex, tabs.length - 1) // Ensure that removing tabs updates to the index of the last available tab.
 				)
 			)
-			.subscribe((index) => this.openTab(index));
-	}
-
-	ngOnDestroy(): void {
-		this.subscription.unsubscribe();
-	}
-
-	openTab(index: number): void {
-		this.currentTabIndex = index;
-	}
-
-	closeTab(tab: DynamicTabComponent, index: number): void {
-		tab.onClose.emit();
+			.subscribe((index) => (this.currentIndex = index));
 	}
 }

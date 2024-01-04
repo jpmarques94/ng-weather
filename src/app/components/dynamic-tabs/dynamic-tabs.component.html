@@ -3,17 +3,17 @@
 		<ng-container *ngFor="let tab of tabs; let i = index">
 			<div
 				class="tab-title"
-				[ngClass]="{ 'is-active': i === currentTabIndex }"
-				(click)="openTab(i)"
+				[ngClass]="{ 'is-active': i === currentIndex }"
+				(click)="currentIndex = i"
 			>
 				{{ tab.title }}
-				<button (click)="closeTab(tab, i)">X</button>
+				<button (click)="tab.onClose.emit()">X</button>
 			</div>
 		</ng-container>
 	</div>
 	<div class="tab-content">
 		<ng-container *ngFor="let tab of tabs; let i = index">
-			<ng-container *ngIf="i === currentTabIndex">
+			<ng-container *ngIf="i === currentIndex">
 				<ng-container
 					*ngTemplateOutlet="
 						tab.bodyTemplate;
