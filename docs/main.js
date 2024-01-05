@@ -25,10 +25,7 @@ var __decorate = undefined && undefined.__decorate || function (decorators, targ
 
 
 
-let AppComponent = class AppComponent {
-  constructor() {}
-  static #_ = this.ctorParameters = () => [];
-};
+let AppComponent = class AppComponent {};
 AppComponent = __decorate([(0,_angular_core__WEBPACK_IMPORTED_MODULE_2__.Component)({
   selector: 'app-root',
   template: _app_component_html_ngResource__WEBPACK_IMPORTED_MODULE_0__,
@@ -170,7 +167,7 @@ let DynamicTabComponent = class DynamicTabComponent {
     onClose: [{
       type: _angular_core__WEBPACK_IMPORTED_MODULE_0__.Output
     }],
-    bodyTemplate: [{
+    template: [{
       type: _angular_core__WEBPACK_IMPORTED_MODULE_0__.ContentChild,
       args: [_angular_core__WEBPACK_IMPORTED_MODULE_0__.TemplateRef]
     }]
@@ -198,11 +195,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _dynamic_tabs_component_html_ngResource__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./dynamic-tabs.component.html?ngResource */ 6652);
 /* harmony import */ var _dynamic_tabs_component_css_ngResource__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./dynamic-tabs.component.css?ngResource */ 3455);
 /* harmony import */ var _dynamic_tabs_component_css_ngResource__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_dynamic_tabs_component_css_ngResource__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/core */ 1699);
-/* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/platform-browser */ 6480);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ 7422);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs/operators */ 5746);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! rxjs/operators */ 5046);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/core */ 1699);
+/* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/platform-browser */ 6480);
 /* harmony import */ var _dynamic_tab_directive__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./dynamic-tab.directive */ 6368);
 var __decorate = undefined && undefined.__decorate || function (decorators, target, key, desc) {
   var c = arguments.length,
@@ -216,38 +210,37 @@ var __decorate = undefined && undefined.__decorate || function (decorators, targ
 
 
 
-
 let DynamicTabContainerComponent = class DynamicTabContainerComponent {
   constructor() {
-    this.currentTabIndex = 0;
+    this.currentIndex = 0;
   }
-  ngAfterContentInit() {
-    this.subscription = this.tabs.changes.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_3__.map)(tabs => tabs.toArray()), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_4__.tap)(currentTabs => {
-      if (currentTabs.length === 0) {
-        this.currentTabIndex = 0; //* reset index when there are no tabs
-      }
-    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_5__.filter)(currentTabs => currentTabs.length > 0), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_3__.map)(currentTabs => Math.min(this.currentTabIndex, currentTabs.length - 1))).subscribe(index => this.openTab(index));
-  }
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
-  openTab(index) {
-    this.currentTabIndex = index;
-  }
-  closeTab(tab, index) {
+  close(tab, index) {
+    this.updateIndexOnRemove(index);
     tab.onClose.emit();
+  }
+  /**
+   * Adjusts currentIndex after removing a tab to ensure it remains within valid bounds.
+   * If the removed tab is before or at the active one, decrements currentIndex.
+   * If there are no tabs remaining, sets currentIndex to 0.
+   */
+  updateIndexOnRemove(index) {
+    if (this.tabs.length > 0 && index <= this.currentIndex) {
+      this.currentIndex = Math.max(0, this.currentIndex - 1);
+    } else if (this.tabs.length === 0) {
+      this.currentIndex = 0;
+    }
   }
   static #_ = this.propDecorators = {
     tabs: [{
-      type: _angular_core__WEBPACK_IMPORTED_MODULE_6__.ContentChildren,
+      type: _angular_core__WEBPACK_IMPORTED_MODULE_3__.ContentChildren,
       args: [_dynamic_tab_directive__WEBPACK_IMPORTED_MODULE_2__.DynamicTabComponent]
     }]
   };
 };
-DynamicTabContainerComponent = __decorate([(0,_angular_core__WEBPACK_IMPORTED_MODULE_6__.Component)({
+DynamicTabContainerComponent = __decorate([(0,_angular_core__WEBPACK_IMPORTED_MODULE_3__.Component)({
   selector: 'dynamic-tabs',
   standalone: true,
-  imports: [_angular_platform_browser__WEBPACK_IMPORTED_MODULE_7__.BrowserModule],
+  imports: [_angular_platform_browser__WEBPACK_IMPORTED_MODULE_4__.BrowserModule],
   template: _dynamic_tabs_component_html_ngResource__WEBPACK_IMPORTED_MODULE_0__,
   styles: [(_dynamic_tabs_component_css_ngResource__WEBPACK_IMPORTED_MODULE_1___default())]
 })], DynamicTabContainerComponent);
@@ -868,7 +861,6 @@ ___CSS_LOADER_EXPORT___.push([module.id, `.tab-header {
 	cursor: pointer;
 	background-color: #337ab7;
 	color: white;
-	padding: 0.3rem 0.5rem;
 	border: 1px solid black;
 }
 
@@ -876,18 +868,26 @@ ___CSS_LOADER_EXPORT___.push([module.id, `.tab-header {
 	color: white;
 	background-color: transparent;
 	border: none;
-	margin-left: 1rem;
 }
 
 .tab-title.is-active {
 	background-color: black;
 }
 
+.tab-title .tab-title-name {
+	padding: 0.3rem 1.5rem 0.3rem 0.5rem;
+}
+
+.tab-title-container {
+	display: flex;
+	align-items: center;
+}
+
 .tab-content {
 	padding: 5rem;
 	border: 1px solid black;
 }
-`, "",{"version":3,"sources":["webpack://./src/app/components/dynamic-tabs/dynamic-tabs.component.css"],"names":[],"mappings":"AAAA;CACC,aAAa;CACb,mBAAmB;AACpB;;AAEA;CACC,oBAAoB;CACpB,eAAe;CACf,yBAAyB;CACzB,YAAY;CACZ,sBAAsB;CACtB,uBAAuB;AACxB;;AAEA;CACC,YAAY;CACZ,6BAA6B;CAC7B,YAAY;CACZ,iBAAiB;AAClB;;AAEA;CACC,uBAAuB;AACxB;;AAEA;CACC,aAAa;CACb,uBAAuB;AACxB","sourcesContent":[".tab-header {\r\n\tdisplay: flex;\r\n\talign-items: center;\r\n}\r\n\r\n.tab-title {\r\n\tmargin-right: 0.1rem;\r\n\tcursor: pointer;\r\n\tbackground-color: #337ab7;\r\n\tcolor: white;\r\n\tpadding: 0.3rem 0.5rem;\r\n\tborder: 1px solid black;\r\n}\r\n\r\n.tab-title button {\r\n\tcolor: white;\r\n\tbackground-color: transparent;\r\n\tborder: none;\r\n\tmargin-left: 1rem;\r\n}\r\n\r\n.tab-title.is-active {\r\n\tbackground-color: black;\r\n}\r\n\r\n.tab-content {\r\n\tpadding: 5rem;\r\n\tborder: 1px solid black;\r\n}\r\n"],"sourceRoot":""}]);
+`, "",{"version":3,"sources":["webpack://./src/app/components/dynamic-tabs/dynamic-tabs.component.css"],"names":[],"mappings":"AAAA;CACC,aAAa;CACb,mBAAmB;AACpB;;AAEA;CACC,oBAAoB;CACpB,eAAe;CACf,yBAAyB;CACzB,YAAY;CACZ,uBAAuB;AACxB;;AAEA;CACC,YAAY;CACZ,6BAA6B;CAC7B,YAAY;AACb;;AAEA;CACC,uBAAuB;AACxB;;AAEA;CACC,oCAAoC;AACrC;;AAEA;CACC,aAAa;CACb,mBAAmB;AACpB;;AAEA;CACC,aAAa;CACb,uBAAuB;AACxB","sourcesContent":[".tab-header {\r\n\tdisplay: flex;\r\n\talign-items: center;\r\n}\r\n\r\n.tab-title {\r\n\tmargin-right: 0.1rem;\r\n\tcursor: pointer;\r\n\tbackground-color: #337ab7;\r\n\tcolor: white;\r\n\tborder: 1px solid black;\r\n}\r\n\r\n.tab-title button {\r\n\tcolor: white;\r\n\tbackground-color: transparent;\r\n\tborder: none;\r\n}\r\n\r\n.tab-title.is-active {\r\n\tbackground-color: black;\r\n}\r\n\r\n.tab-title .tab-title-name {\r\n\tpadding: 0.3rem 1.5rem 0.3rem 0.5rem;\r\n}\r\n\r\n.tab-title-container {\r\n\tdisplay: flex;\r\n\talign-items: center;\r\n}\r\n\r\n.tab-content {\r\n\tpadding: 5rem;\r\n\tborder: 1px solid black;\r\n}\r\n"],"sourceRoot":""}]);
 // Exports
 module.exports = ___CSS_LOADER_EXPORT___.toString();
 
@@ -963,7 +963,7 @@ module.exports = "<router-outlet></router-outlet>\r\n";
 /***/ ((module) => {
 
 "use strict";
-module.exports = "<ng-container *ngIf=\"tabs.length > 0\">\r\n\t<div class=\"tab-header\">\r\n\t\t<ng-container *ngFor=\"let tab of tabs; let i = index\">\r\n\t\t\t<div\r\n\t\t\t\tclass=\"tab-title\"\r\n\t\t\t\t[ngClass]=\"{ 'is-active': i === currentTabIndex }\"\r\n\t\t\t\t(click)=\"openTab(i)\"\r\n\t\t\t>\r\n\t\t\t\t{{ tab.title }}\r\n\t\t\t\t<button (click)=\"closeTab(tab, i)\">X</button>\r\n\t\t\t</div>\r\n\t\t</ng-container>\r\n\t</div>\r\n\t<div class=\"tab-content\">\r\n\t\t<ng-container *ngFor=\"let tab of tabs; let i = index\">\r\n\t\t\t<ng-container *ngIf=\"i === currentTabIndex\">\r\n\t\t\t\t<ng-container\r\n\t\t\t\t\t*ngTemplateOutlet=\"\r\n\t\t\t\t\t\ttab.bodyTemplate;\r\n\t\t\t\t\t\tcontext: { $implicit: tab }\r\n\t\t\t\t\t\"\r\n\t\t\t\t></ng-container>\r\n\t\t\t</ng-container>\r\n\t\t</ng-container>\r\n\t</div>\r\n</ng-container>\r\n";
+module.exports = "<ng-container *ngIf=\"tabs.length > 0\">\r\n\t<div class=\"tab-header\">\r\n\t\t<ng-container *ngFor=\"let tab of tabs; let i = index\">\r\n\t\t\t<div\r\n\t\t\t\tclass=\"tab-title\"\r\n\t\t\t\t[ngClass]=\"{ 'is-active': i === currentIndex }\"\r\n\t\t\t>\r\n\t\t\t\t<div class=\"tab-title-container\">\r\n\t\t\t\t\t<div class=\"tab-title-name\" (click)=\"currentIndex = i\">\r\n\t\t\t\t\t\t{{ tab.title }}\r\n\t\t\t\t\t</div>\r\n\t\t\t\t\t<button (click)=\"close(tab, i)\">X</button>\r\n\t\t\t\t</div>\r\n\t\t\t</div>\r\n\t\t</ng-container>\r\n\t</div>\r\n\t<div class=\"tab-content\">\r\n\t\t<ng-container *ngFor=\"let tab of tabs; let i = index\">\r\n\t\t\t<ng-container *ngIf=\"i === currentIndex\">\r\n\t\t\t\t<ng-container\r\n\t\t\t\t\t*ngTemplateOutlet=\"\r\n\t\t\t\t\t\ttab.template;\r\n\t\t\t\t\t\tcontext: { $implicit: tab }\r\n\t\t\t\t\t\"\r\n\t\t\t\t></ng-container>\r\n\t\t\t</ng-container>\r\n\t\t</ng-container>\r\n\t</div>\r\n</ng-container>\r\n";
 
 /***/ }),
 
